@@ -20,7 +20,7 @@ const AdminLogin: React.FC = () => {
 		e.preventDefault();
 
 		try {
-			const response = await fetch("/api/auth/admin-login", {
+			const response = await fetch("/api/admin/login", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
