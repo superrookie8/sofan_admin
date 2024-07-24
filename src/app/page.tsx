@@ -41,6 +41,12 @@ const Admin: React.FC = () => {
 				<li>
 					<Link href="/guestbooks">Manage Guestbook</Link>
 				</li>
+				<li>
+					<Link href="/sketch">Sketchbook</Link>
+				</li>
+				<li>
+					<Link href="/editor">ImageEditor</Link>
+				</li>
 			</ul>
 		</div>
 	);

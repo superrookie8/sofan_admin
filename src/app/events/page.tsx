@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import useAdminAuth from "@/hooks/useAdminAuth";
-import EventList from "@/components/admin/GetEvents";
+import EventList from "@/components/GetEvents";
 
 interface Event {
 	title: string;
