@@ -16,6 +16,7 @@ const AdminSchedule: React.FC = () => {
 		isHome: false,
 		time: "",
 		season: "",
+		specialGame: "",
 	});
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const [customTime, setCustomTime] = useState<string>("");
@@ -45,7 +46,6 @@ const AdminSchedule: React.FC = () => {
 
 				const data = await response.json();
 				setSeasons(data);
-				// 기존에 저장된 시즌이 있을 경우 가장 최근 시즌을 초기 선택 시즌으로 설정
 				if (data.length > 0) {
 					setSelectedSeason(data[data.length - 1]);
 				}
@@ -78,7 +78,7 @@ const AdminSchedule: React.FC = () => {
 
 				const data = await response.json();
 				setScheduleList(data);
-				setFilteredScheduleList(data); // Set the filtered list initially
+				setFilteredScheduleList(data);
 			} catch (error) {
 				console.error("Failed to fetch schedules:", error);
 			}
@@ -95,6 +95,8 @@ const AdminSchedule: React.FC = () => {
 			filteredList = scheduleList.filter((schedule) => schedule.isHome);
 		} else if (homeFilter === "away") {
 			filteredList = scheduleList.filter((schedule) => !schedule.isHome);
+		} else if (homeFilter === "specialGame") {
+			filteredList = scheduleList.filter((schedule) => schedule.specialGame);
 		}
 		setFilteredScheduleList(filteredList);
 	}, [homeFilter, scheduleList]);
@@ -144,6 +146,10 @@ const AdminSchedule: React.FC = () => {
 			delete updatedForm.extraHome;
 		}
 
+		if (!updatedForm.specialGame) {
+			delete updatedForm.specialGame;
+		}
+
 		try {
 			const response = await fetch("/api/admin/postschedule", {
 				method: "POST",
@@ -175,7 +181,7 @@ const AdminSchedule: React.FC = () => {
 			);
 
 			setScheduleList(updatedList);
-			setFilteredScheduleList(updatedList); // Update the filtered list
+			setFilteredScheduleList(updatedList);
 			setForm({
 				_id: "",
 				date: "",
@@ -183,6 +189,7 @@ const AdminSchedule: React.FC = () => {
 				isHome: false,
 				time: "",
 				season: selectedSeason,
+				specialGame: "",
 			});
 			setIsEditing(false);
 			setShowCustomTimeInput(false);
@@ -232,7 +239,7 @@ const AdminSchedule: React.FC = () => {
 				(schedule) => schedule._id !== scheduleId
 			);
 			setScheduleList(updatedList);
-			setFilteredScheduleList(updatedList); // Update the filtered list
+			setFilteredScheduleList(updatedList);
 		} catch (error) {
 			console.error("Failed to delete schedule:", error);
 		}
@@ -370,6 +377,17 @@ const AdminSchedule: React.FC = () => {
 								/>
 							)}
 						</div>
+						<div className="mb-2">
+							<label className="block mb-1">Special Game</label>
+							<input
+								type="text"
+								name="spacialGame"
+								value={form.specialGame}
+								onChange={handleInputChange}
+								placeholder="Enter special game details (if any)"
+								className="border px-2 py-1 w-full"
+							/>
+						</div>
 						<button
 							type="submit"
 							className="bg-blue-500 text-white px-4 py-2 mt-2"
@@ -390,6 +408,7 @@ const AdminSchedule: React.FC = () => {
 									<option value="all">All</option>
 									<option value="home">Home</option>
 									<option value="away">Away</option>
+									<option value="specialGame">Special Game</option>
 								</select>
 							</div>
 						</div>
@@ -410,7 +429,9 @@ const AdminSchedule: React.FC = () => {
 																: ""
 													  }`
 													: "Away"}{" "}
-												- {schedule.time}
+												- {schedule.time}{" "}
+												{schedule.specialGame &&
+													`- Special: ${schedule.specialGame}`}
 											</span>
 										</div>
 										<div>
