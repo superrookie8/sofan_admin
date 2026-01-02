@@ -209,6 +209,7 @@ const AdminSchedule: React.FC = () => {
 		);
 		if (
 			schedule.time !== "14:00" &&
+			schedule.time !== "16:00" &&
 			schedule.time !== "18:00" &&
 			schedule.time !== "19:00"
 		) {
@@ -362,6 +363,7 @@ const AdminSchedule: React.FC = () => {
 								className="border px-2 py-1 w-full"
 							>
 								<option value="14:00">14:00</option>
+								<option value="16:00">16:00</option>
 								<option value="18:00">18:00</option>
 								<option value="19:00">19:00</option>
 								<option value="custom">Add Custom Time</option>

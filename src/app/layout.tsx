@@ -5,7 +5,7 @@ import RecoilRootProvider from "@/utils/recoilRootProvider";
 import ScriptProvider from "@/utils/scriptProvider";
 
 export const metadata: Metadata = {
-	title: { default: "BNK NO36.Lee Sohee", template: "%s | Lee Sohee" },
+	title: { default: "BNK NO6.Lee Sohee", template: "%s | Lee Sohee" },
 	description: "Welcome to the fan page of BNK NO36. Lee Sohee.",
 	keywords: [
 		"WKBL",

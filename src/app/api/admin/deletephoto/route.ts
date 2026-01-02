@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function DELETE(req: NextRequest) {
 	try {
 		const { photoIds } = await req.json();
-		const token = req.headers.get("authorization") || "";
+		const token = req.headers.get("Authorization") || "";
 
 		const response = await fetch(
 			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/deletephoto`,

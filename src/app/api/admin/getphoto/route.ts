@@ -15,14 +15,14 @@ export async function OPTIONS() {
 
 export async function GET(req: NextRequest) {
 	try {
-		const token = req.headers.get("authorization") || "";
+		// const token = req.headers.get("Authorization") || "";
 
 		const response = await fetch(
 			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/get/photos`,
 			{
 				method: "GET",
 				headers: {
-					Authorization: token,
+					// Authorization: token,
 					"Content-Type": "application/json",
 					Pragma: "no-cache",
 					"Cache-Control": "no-cache, no-store, must-revalidate",
