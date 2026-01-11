@@ -1,44 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
+import { authenticateRequest } from "@/lib/auth/middleware";
+import { getDatabase } from "@/lib/mongodb/client";
 
 export async function POST(req: NextRequest) {
 	try {
-		const { name, team, position, number, height, nickname, features } =
-			await req.json();
-		const token = req.headers.get("authorization");
-
-		if (!token) {
-			throw new Error("Authorization header missing");
+		// 인증 확인
+		const isAuthenticated = await authenticateRequest(req);
+		if (!isAuthenticated) {
+			return NextResponse.json(
+				{ message: "인증이 필요합니다." },
+				{ status: 401 }
+			);
 		}
 
-		const backendResponse = await fetch(
-			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/create_or_update/profile`,
+		const { name, team, position, jerseyNumber, height, nickname, features, profileImageUrl } =
+			await req.json();
+
+		if (!name || !team) {
+			return NextResponse.json(
+				{ message: "이름과 팀명은 필수입니다." },
+				{ status: 400 }
+			);
+		}
+
+		// MongoDB에 Player 정보 저장/업데이트
+		const db = await getDatabase();
+		
+		// 기존 Player가 있으면 업데이트, 없으면 생성
+		const result = await db.collection("players").findOneAndUpdate(
+			{}, // 빈 필터 = 첫 번째 문서
 			{
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: token, // Add Authorization header
-				},
-				body: JSON.stringify({
+				$set: {
 					name,
 					team,
-					position,
-					number,
-					height,
-					nickname,
-					features,
-				}),
+					...(position && { position }),
+					...(jerseyNumber !== undefined && { jerseyNumber: parseInt(jerseyNumber) }),
+					...(height && { height }),
+					...(nickname && { nickname: Array.isArray(nickname) ? nickname : [nickname] }),
+					...(features && { features }),
+					...(profileImageUrl && { profileImageUrl }),
+				},
+			},
+			{
+				upsert: true, // 없으면 생성
+				returnDocument: "after", // 업데이트 후 문서 반환
 			}
 		);
 
-		const backendData = await backendResponse.json();
-		console.log("backendData", backendData);
-
-		if (!backendResponse.ok) {
-			throw new Error(backendData.message || "Failed to save profile.");
-		}
-
 		return NextResponse.json(
-			{ message: "Profile saved successfully!" },
+			{ message: "Profile saved successfully!", data: result },
 			{ status: 200 }
 		);
 	} catch (error: any) {

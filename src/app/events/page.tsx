@@ -9,6 +9,7 @@ interface Event {
 	title: string;
 	url: string;
 	description: string;
+	date: string;
 	checkFields: { [key: string]: string };
 	photos: string[];
 }
@@ -20,7 +21,8 @@ const ManageEvents: React.FC = () => {
 		title: "",
 		url: "",
 		description: "",
-		checkFields: { check_1: "" },
+		date: "",
+		checkFields: { check_1: "", check_2: "", check_3: "" },
 		photos: [],
 	});
 	const [checkFields, setCheckFields] = useState<string[]>(["check_one"]);
@@ -54,7 +56,14 @@ const ManageEvents: React.FC = () => {
 		e.preventDefault();
 		const formData = new FormData();
 		formData.append("title", newEvent.title || "");
-		if (showUrlField) {
+		
+		// date를 ISO 8601 형식으로 변환
+		if (newEvent.date) {
+			const dateObj = new Date(newEvent.date);
+			formData.append("date", dateObj.toISOString());
+		}
+		
+		if (showUrlField && newEvent.url) {
 			formData.append("url", newEvent.url || "");
 		}
 		formData.append("description", newEvent.description || "");
@@ -70,10 +79,29 @@ const ManageEvents: React.FC = () => {
 			});
 		}
 
-		const token = sessionStorage.getItem("admin-token") || "";
+		const token = localStorage.getItem("adminToken") || "";
+		
+		// 토큰 검증
+		if (!token) {
+			alert("로그인이 필요합니다");
+			router.push("/login");
+			return;
+		}
+		
+		// JWT 형식 확인
+		const tokenParts = token.split('.');
+		if (tokenParts.length !== 3) {
+			console.error("잘못된 토큰 형식:", token);
+			alert("인증 토큰이 유효하지 않습니다. 다시 로그인해주세요.");
+			localStorage.removeItem("adminToken");
+			router.push("/login");
+			return;
+		}
 
 		try {
-			const response = await fetch("/api/admin/postevents", {
+			const backendUrl = process.env.NEXT_PUBLIC_BACKAPI_URL || "http://localhost:8080";
+			
+			const response = await fetch(`${backendUrl}/api/admin/events`, {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -81,24 +109,45 @@ const ManageEvents: React.FC = () => {
 				body: formData,
 			});
 
-			const data = await response.text();
+			if (response.status === 401) {
+				const error = await response.json().catch(() => ({ error: "인증 실패" }));
+				console.error("인증 실패:", error);
+				alert(error.error || error.message || "인증이 만료되었습니다. 다시 로그인해주세요.");
+				localStorage.removeItem("adminToken");
+				router.push("/login");
+				return;
+			}
+
+			const data = await response.json().catch(async (err) => {
+				// JSON 파싱 실패 시 텍스트로 읽기
+				const text = await response.text();
+				console.error("Response parsing error:", err);
+				console.error("Response text:", text);
+				return { error: text || "알 수 없는 오류가 발생했습니다." };
+			});
+			
 			console.log("Response data:", data);
 
 			if (response.ok) {
-				alert("Event and photos uploaded successfully");
+				// 성공 응답: { "message": "이벤트가 생성되었습니다", "event": {...} }
+				alert(data.message || "Event and photos uploaded successfully");
 				setNewEvent({
 					title: "",
 					url: "",
 					description: "",
-					checkFields: { check_1: "" },
+					date: "",
+					checkFields: { check_1: "", check_2: "", check_3: "" },
 					photos: [],
 				});
 				setCheckFields(["check_one"]);
 				setShowUrlField(false);
 				// EventList가 업데이트되도록 트리거
+				window.location.reload();
 			} else {
+				// 에러 응답: { "error": "..." } 또는 { "message": "..." }
+				const errorMessage = data.error || data.message || JSON.stringify(data);
 				console.error("Failed to upload event and photos:", data);
-				alert(`Failed to upload event and photos: ${data}`);
+				alert(`Failed to upload event and photos: ${errorMessage}`);
 			}
 		} catch (error) {
 			console.error("Error uploading event and photos:", error);
@@ -115,7 +164,7 @@ const ManageEvents: React.FC = () => {
 	};
 
 	const removeCheckField = () => {
-		if (Object.keys(newEvent.checkFields).length > 1) {
+		if (Object.keys(newEvent.checkFields).length > 3) {
 			const newCheckFields = { ...newEvent.checkFields };
 			delete newCheckFields[
 				`check_${Object.keys(newEvent.checkFields).length}`
@@ -146,6 +195,17 @@ const ManageEvents: React.FC = () => {
 						required
 					/>
 				</div>
+				<div className="mb-4">
+					<label className="block text-gray-700">Date</label>
+					<input
+						type="date"
+						name="date"
+						value={newEvent.date}
+						onChange={handleChange}
+						className="w-full border rounded px-3 py-2"
+						required
+					/>
+				</div>
 				<button
 					type="button"
 					onClick={toggleUrlField}
@@ -155,7 +215,7 @@ const ManageEvents: React.FC = () => {
 				</button>
 				{showUrlField && (
 					<div className="mb-4">
-						<label className="block text-gray-700">URL</label>
+						<label className="block text-gray-700">Event Page URL</label>
 						<input
 							type="text"
 							name="url"

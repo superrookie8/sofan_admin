@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 		const token = req.headers.get("authorization") || "";
 
 		const response = await fetch(
-			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/postevents`,
+			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/events`,
 			{
 				method: "POST",
 				headers: {

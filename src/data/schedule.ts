@@ -7,6 +7,7 @@ export interface GameSchedule {
 	time: string;
 	extraHome?: string | undefined;
 	specialGame?: string | undefined;
+	url?: string | undefined;
 }
 
 export interface GameLocation {
@@ -26,7 +27,7 @@ export const locations: Record<string, GameLocation> = {
 		latitude: 37.2377,
 		longitude: 127.2135,
 	},
-	하나원큐: { name: "부천체육관", latitude: 37.5134, longitude: 126.7632 },
+	하나은행: { name: "부천체육관", latitude: 37.5134, longitude: 126.7632 },
 	우리은행: {
 		name: "아산 이순신체육관",
 		latitude: 36.7693,

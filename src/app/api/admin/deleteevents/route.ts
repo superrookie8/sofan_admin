@@ -2,18 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(req: NextRequest) {
 	try {
-		const { eventId } = await req.json();
+		const { searchParams } = new URL(req.url);
+		const eventId = searchParams.get("eventId");
+		
+		if (!eventId) {
+			return NextResponse.json(
+				{ message: "Event ID is required" },
+				{ status: 400 }
+			);
+		}
+
 		const token = req.headers.get("authorization") || "";
 
 		const response = await fetch(
-			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/delete/event`,
+			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/events/${eventId}`,
 			{
 				method: "DELETE",
 				headers: {
 					"Content-Type": "application/json",
 					Authorization: token,
 				},
-				body: JSON.stringify({ eventId }),
 			}
 		);
 

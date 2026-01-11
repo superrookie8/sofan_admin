@@ -43,7 +43,7 @@ const AdminDeletePhotos: React.FC<Props> = ({ adminPhotos, userPhotos }) => {
 		if (!confirmDelete) return;
 
 		try {
-			const token = sessionStorage.getItem("admin-token");
+			const token = localStorage.getItem("adminToken");
 			const response = await fetch("/api/admin/deletephoto", {
 				method: "DELETE",
 				headers: {

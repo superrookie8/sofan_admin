@@ -83,7 +83,7 @@ const AdminPhotoUpload: React.FC = () => {
 		e.preventDefault();
 
 		try {
-			const token = sessionStorage.getItem("admin-token");
+			const token = localStorage.getItem("adminToken");
 			if (!token) {
 				setError("You are not authorized to perform this action.");
 				return;

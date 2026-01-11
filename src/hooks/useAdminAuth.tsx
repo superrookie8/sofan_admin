@@ -5,9 +5,9 @@ const useAdminAuth = () => {
 	const router = useRouter();
 
 	useEffect(() => {
-		const token = sessionStorage.getItem("admin-token");
+		const token = localStorage.getItem("adminToken");
 		if (!token) {
-			router.push("/admin/login");
+			router.push("/login");
 		}
 	}, [router]);
 };

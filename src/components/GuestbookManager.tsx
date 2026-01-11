@@ -12,7 +12,7 @@ const fetchGuestbookLists = async (
 	pageSize: number,
 	name?: string
 ): Promise<{ entries: GuestBookEntry[]; total_entries: number }> => {
-	const token = sessionStorage.getItem("admin-token");
+	const token = localStorage.getItem("adminToken");
 
 	if (!token) {
 		throw new Error("You are not authorized to perform this action.");
@@ -47,7 +47,7 @@ const fetchGuestbookLists = async (
 };
 
 const deleteGuestbookEntry = async (entryId: string): Promise<void> => {
-	const token = sessionStorage.getItem("admin-token");
+	const token = localStorage.getItem("adminToken");
 
 	if (!token) {
 		throw new Error("You are not authorized to perform this action.");

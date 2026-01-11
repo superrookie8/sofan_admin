@@ -10,9 +10,9 @@ const AdminLogin: React.FC = () => {
 	const [message, setMessage] = useState("");
 
 	useEffect(() => {
-		const token = sessionStorage.getItem("admin-token");
+		const token = localStorage.getItem("adminToken");
 		if (token) {
-			router.push("/admin");
+			router.push("/");
 		}
 	}, [router]);
 
@@ -20,7 +20,9 @@ const AdminLogin: React.FC = () => {
 		e.preventDefault();
 
 		try {
-			const response = await fetch("/api/admin/login", {
+			const backendUrl = process.env.NEXT_PUBLIC_BACKAPI_URL || "http://localhost:8080";
+			
+			const response = await fetch(`${backendUrl}/api/admin/login`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -31,10 +33,27 @@ const AdminLogin: React.FC = () => {
 			const data = await response.json();
 
 			if (response.ok) {
-				sessionStorage.setItem("admin-token", data.access_token);
+				// JWT 토큰 검증
+				const token = data.token;
+				if (!token) {
+					setMessage("토큰을 받지 못했습니다.");
+					return;
+				}
+
+				const tokenParts = token.split('.');
+				if (tokenParts.length !== 3) {
+					console.error("잘못된 JWT 형식:", token);
+					setMessage("인증 토큰이 유효하지 않습니다.");
+					return;
+				}
+
+				// localStorage에 adminToken으로 저장
+				localStorage.setItem("adminToken", token);
+				console.log("로그인 성공, 토큰 저장됨");
 				router.push("/");
 			} else {
-				setMessage(data.message);
+				// 백엔드 에러 형식: { "error": "아이디 또는 비밀번호가 올바르지 않습니다" }
+				setMessage(data.error || data.message || "로그인에 실패했습니다.");
 			}
 		} catch (error: any) {
 			console.error("Login error:", error);

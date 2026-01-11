@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 		}
 
 		const response = await fetch(
-			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/get/events`,
+			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/events`,
 			{
 				method: "GET",
 				headers: {

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 		}
 
 		const backendResponse = await fetch(
-			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/create_update/schedule`,
+			`${process.env.NEXT_PUBLIC_BACKAPI_URL}/api/admin/schedules`,
 			{
 				method: "POST",
 				headers: {

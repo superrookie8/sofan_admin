@@ -45,7 +45,7 @@ export default function DeletePhotosPage() {
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		const token = sessionStorage.getItem("admin-token");
+		const token = localStorage.getItem("adminToken");
 		if (token) {
 			fetchPhotos(token)
 				.then((data) => {
